@@ -85,6 +85,13 @@ class Action(Enum):
     R = 2
     U = 3
     D = 4
+    def invert(self):
+        return {
+            Action.L : Action.R,
+            Action.R : Action.L,
+            Action.U : Action.D,
+            Action.D : Action.U,
+        }[self]
 
 inp = input().split()
 inp += input().split()

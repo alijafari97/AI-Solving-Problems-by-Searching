@@ -148,8 +148,6 @@ class Cube:
         rc[20] = inp[21]
         return Node(rc)
 
-
-
 class Action(Enum):
     T = 1
     TC = 2
@@ -157,6 +155,15 @@ class Action(Enum):
     FC = 4
     R = 5
     RC = 6
+    def invert(self):
+        return {
+            Action.T : Action.TC,
+            Action.TC : Action.T,
+            Action.F : Action.FC,
+            Action.FC : Action.F,
+            Action.R : Action.RC,
+            Action.RC : Action.R,
+        }[self]
 
 inp = input()
 inp = inp.split()

@@ -74,27 +74,24 @@ class Action(Enum):
 
 
 
-# inp = input()
+inp = input()
 
-# split = inp.split()
-# n = int(split[0])
-# m = int(split[1])
+split = inp.split()
+n = int(split[0])
+m = int(split[1])
 
-# inp = input()
-# split = inp.split()
-# numOfWalls = int(split[0])
+inp = input()
+split = inp.split()
+numOfWalls = int(split[0])
 
-# walls = []
+walls = []
 
-# for i in range(0, numOfWalls):
-#     inp = input()
-#     split = inp.split()
-#     walls.append([int(x) for x in split])
+for i in range(0, numOfWalls):
+    inp = input()
+    split = inp.split()
+    walls.append([int(x) for x in split])
 
-# robot = Robot(n, m, numOfWalls, walls)
-
-m = 5
-robot = Robot(5, 5, 4, [[3 ,2 ,4 ,2],[3 ,3 ,4 ,3],[2 ,3 ,2 ,4],[3 ,3 ,3 ,4]])
+robot = Robot(n, m, numOfWalls, walls)
 alg = GraphAlgo(robot)
 alg.bidirectionalSearch(Node([m,m]))
 
