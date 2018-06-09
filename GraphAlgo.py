@@ -14,7 +14,7 @@ class GraphAlgo:
         self._depth = 0
 
 
-    def showResult(self, start):
+    def showResult(self, start, pathCostNotCalculate=False, bidirectionalNode=None):#bidirectionalNode is for bidirectionalSearch
         path = []
         actions = []
         while start.parent != None:
@@ -24,12 +24,22 @@ class GraphAlgo:
         path.append(start.state)
         path.reverse()
         actions.reverse()
+        if bidirectionalNode:
+            del path[-1]
+            while bidirectionalNode.parent != None:
+                path.append(bidirectionalNode.state)
+                actions.append(bidirectionalNode.parent['action'].invert())
+                bidirectionalNode = bidirectionalNode.parent['node']
+            path.append(bidirectionalNode.state)
         print('actions: ', actions)
         print('path: ', path)
         print('seen nodes: ', self.seenNodes)
         print('expanded nodes: ', self.expandedNodes)
         print('max memory usage: ', self.maxMemoryUsage)
-        print('path cost: ', self.pathCost)
+        if pathCostNotCalculate:
+            print('path cost: ', len(path))
+        else:
+            print('path cost: ', self.pathCost)
         
 
     def BFS(self):
@@ -47,7 +57,7 @@ class GraphAlgo:
                         self.seenNodes = self.f.qsize() + len(self.e) + 1
                         self.expandedNodes = len(self.e)
                         self.maxMemoryUsage = self.f.qsize() + len(self.e)
-                        self.showResult(child)
+                        self.showResult(child, True)
                         return
                     else:
                         self.f.put(child)
@@ -61,6 +71,7 @@ class GraphAlgo:
         self._depth += 1
         self.maxMemoryUsage = max(self.maxMemoryUsage, self._depth)
         if self.problem.isGoal(node):
+            self.pathCost = self._depth
             self.showResult(node)
             return True
         else:
@@ -74,6 +85,28 @@ class GraphAlgo:
             self.expandedNodes += 1
             return False
 
+    def DFSGraphSearch(self):
+        self.f = []
+        self.f.append(self.problem.initialState())
+        while True:
+            if len(self.f) == 0:
+                print('f is empty!!!')
+                return
+            node = self.f.pop()
+            self.e.append(node)
+            for action in self.problem.actions(node):
+                child = self.problem.result(node, action)
+                child.parent = {'node': node, 'action': action}
+                if child.state not in [x.state for x in self.f] and child.state not in [x.state for x in self.e]:
+                    if self.problem.isGoal(child):
+                        self.seenNodes = len(self.f) + len(self.e) + 1
+                        self.expandedNodes = len(self.e)
+                        self.maxMemoryUsage = len(self.f) + len(self.e)
+                        self.showResult(child, True)
+                        return
+                    else:
+                        self.f.append(child)
+
 
     def depthLimitedSearch(self, limit): #DFS with Depth-Limited-Search
         if not self.recursivDLS(self.f.get(), limit):
@@ -85,6 +118,7 @@ class GraphAlgo:
         self._depth += 1
         self.maxMemoryUsage = max(self.maxMemoryUsage, self._depth)
         if self.problem.isGoal(node):
+            self.pathCost = self._depth
             self.showResult(node)
             return True
         elif limit == 0:
@@ -113,7 +147,7 @@ class GraphAlgo:
 
 
 
-    def bidirectionaSearch(self, goal):
+    def bidirectionalSearch(self, goal):
         g = Queue()
         g.put(goal)
         h = []
@@ -121,13 +155,15 @@ class GraphAlgo:
             if len(self.f.queue) == 0:
                 print('f is empty!!!')
                 return
-            if len(g) == 0:
+            if len(g.queue) == 0:
                 print('g is empty!!!')
                 return
-            subscribe = set(node.state for node in self.f.queue) & set(node.state for node in g.queue)
+            subscribe = next((node.state for node in self.f.queue if node.state in [node.state for node in g.queue]), None)
             if(subscribe):
-
-                print("founded")
+                self.seenNodes = self.f.qsize() + len(self.e) + g.qsize() + len(h) 
+                self.expandedNodes = len(self.e) + len(h)
+                self.maxMemoryUsage = self.f.qsize() + len(self.e) + g.qsize() + len(h)
+                self.showResult(next(node for node in self.f.queue if node.state == subscribe),True ,next(node for node in g.queue if node.state == subscribe))
                 return
 
             node1 = self.f.get()
@@ -138,10 +174,12 @@ class GraphAlgo:
                 if child1.state not in [x.state for x in self.f.queue] and child1.state not in [x.state for x in self.e]:
                     self.f.put(child1)
 
-            subscribe = set(node.state for node in self.f.queue) & set(node.state for node in g.queue)
+            subscribe = next((node.state for node in self.f.queue if node.state in [node.state for node in g.queue]), None)
             if(subscribe):
-
-                print("founded")
+                self.seenNodes = self.f.qsize() + len(self.e) + g.qsize() + len(h) 
+                self.expandedNodes = len(self.e) + len(h)
+                self.maxMemoryUsage = self.f.qsize() + len(self.e) + g.qsize() + len(h)
+                self.showResult(next(node for node in self.f.queue if node.state == subscribe),True ,next(node for node in g.queue if node.state == subscribe))
                 return
             
             node2 = g.get()
@@ -214,4 +252,5 @@ class GraphAlgo:
                     if temp:
                         self.f.remove(temp)
                         heapq.heappush(self.f, (pathCost, child))
+
 

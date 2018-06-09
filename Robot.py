@@ -47,7 +47,7 @@ class Robot:
             return Node([node.state[0], node.state[1] + 1])
 
     def isGoal(self, node):
-        if(node.state == [n, m]):
+        if(node.state == [self.n, self.m]):
             return True
         return False
 
@@ -55,7 +55,7 @@ class Robot:
         return 1
 
     def h(self, node):
-        return ((n - node.state[0])**2 + (m - node.state[1])**2)**0.5
+        return ((self.n - node.state[0])**2 + (self.m - node.state[1])**2)**0.5
     
 
 
@@ -64,27 +64,51 @@ class Action(Enum):
     R = 2
     U = 3
     D = 4
+    def invert(self):
+        return {
+            Action.L : Action.R,
+            Action.R : Action.L,
+            Action.U : Action.D,
+            Action.D : Action.U,
+        }[self]
 
 
 
-inp = input()
+# inp = input()
 
-split = inp.split()
-n = int(split[0])
-m = int(split[1])
+# split = inp.split()
+# n = int(split[0])
+# m = int(split[1])
 
-inp = input()
-split = inp.split()
-numOfWalls = int(split[0])
+# inp = input()
+# split = inp.split()
+# numOfWalls = int(split[0])
 
-walls = []
+# walls = []
 
-for i in range(0, numOfWalls):
-    inp = input()
-    split = inp.split()
-    walls.append([int(x) for x in split])
+# for i in range(0, numOfWalls):
+#     inp = input()
+#     split = inp.split()
+#     walls.append([int(x) for x in split])
 
-robot = Robot(n, m, numOfWalls, walls)
+# robot = Robot(n, m, numOfWalls, walls)
+
+m = 5
+robot = Robot(5, 5, 4, [[3 ,2 ,4 ,2],[3 ,3 ,4 ,3],[2 ,3 ,2 ,4],[3 ,3 ,3 ,4]])
 alg = GraphAlgo(robot)
-alg.BFS()
+alg.bidirectionalSearch(Node([m,m]))
 
+'''
+sample input:
+5 5 
+4
+3 2 4 2
+3 3 4 3
+2 3 2 4
+3 3 3 4
+
+first line: dimention of enviroment
+secend line: number of walls
+for 1 to 4 
+    walls between to square
+'''
